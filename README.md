@@ -1,4 +1,5 @@
 Uninstall Pygame
+
 pip uninstall pygame
 
 Install Pygame-ce
