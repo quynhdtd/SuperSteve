@@ -25,6 +25,7 @@ class Player(pygame.sprite.Sprite):
         self.gravity = 1350
         self.jump = False
         self.jump_height = 630
+        self.attacking = False
         
         # collision
         self.collision_sprites = collision_sprites
@@ -34,7 +35,8 @@ class Player(pygame.sprite.Sprite):
         
         # timer
         self.timers = {
-            'platform skip': Timer(100)
+            'platform skip': Timer(100),
+            'attack block': Timer(500)
         }
         
     def input(self):
@@ -44,15 +46,27 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_RIGHT]:
             input_vector.x += 1
             self.facing_right = True
+        
         if keys[pygame.K_LEFT]:
             input_vector.x -= 1     
             self.facing_right = False
         self.direction.x = input_vector.normalize().x if input_vector.x else input_vector.x
+        
         if keys[pygame.K_DOWN]:
             self.timers['platform skip'].activate()
-        if keys[pygame.K_SPACE]:
+        
+        if keys[pygame.K_x]:
             self.jump = True
             
+        if keys[pygame.K_z]:
+            self.attack()
+    
+    def attack(self):
+        if not self.timers['attack block'].active:
+            self.attacking = True
+            self.frame_index = 0
+            self.timers['attack block'].activate()
+        
     def move(self, dt):
         # horizontal
         self.hitbox_rect.x += self.direction.x * self.speed * dt
@@ -133,14 +147,27 @@ class Player(pygame.sprite.Sprite):
             
     def animate(self, dt):
         self.frame_index += ANIMATION_SPEED * dt
+        if self.state == 'attack' and self.frame_index >= len(self.frames[self.state]):
+            self.state = 'idle'
+            
+            
         self.image = self.frames[self.state][int(self.frame_index % len(self.frames[self.state]))]
         self.image = self.image if self.facing_right else pygame.transform.flip(self.image, True, False)
-    
+
+        if self.attacking and self.frame_index > len(self.frames[self.state]):
+            self.attacking = False
+            
     def get_state(self):
         if self.on_surface['floor']:
-            self.state = 'idle' if self.direction.x == 0 else 'run'
+            if self.attacking:
+                self.state = 'attack'
+            else:
+                self.state = 'idle' if self.direction.x == 0 else 'run'
         else:
-            self.state = 'jump' if self.direction.y <0 else 'fall'
+            if self.attacking:
+                self.state = 'air_attack'
+            else:
+                self.state = 'jump' if self.direction.y <0 else 'fall'
     
     def update(self, dt):
         self.old_rect = self.hitbox_rect.copy()
