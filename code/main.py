@@ -20,8 +20,13 @@ class Game:
             'floor spike': import_folder('.', 'graphics', 'enemies', 'floor_spikes'),
             'torch': import_folder('.', 'graphics', 'level', 'torch'),
             'torch_light': import_folder('.', 'graphics', 'level', 'torch_light'),
-            'player': import_sub_folders('.', 'graphics', 'player')
-            
+            'player': import_sub_folders('.', 'graphics', 'player'),
+            'spike trap': import_image('.', 'graphics', 'enemies', 'spike_trap', 'trap'),
+            'zombie': import_folder('.', 'graphics', 'enemies', 'zombie'),
+            'shell': import_sub_folders('.', 'graphics', 'enemies', 'shell'),
+            'pearl': import_image('.', 'graphics', 'enemies', 'bullets', 'pearl'),
+            'items': import_sub_folders('.', 'graphics', 'items'),
+            'particle': import_folder('.', 'graphics', 'effects', 'particle'),
             
         }
         # print(self.level_frames)

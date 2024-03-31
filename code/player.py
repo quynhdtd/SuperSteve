@@ -169,14 +169,18 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.state = 'jump' if self.direction.y <0 else 'fall'
     
+    def get_damage(self):
+        print('player dam')
+    
     def update(self, dt):
         self.old_rect = self.hitbox_rect.copy()
         self.update_timers()
         
         self.input()
         self.move(dt)
-        self.platform_move(dt)
+        
         self.check_contact()
+        self.platform_move(dt)
         
         self.get_state()
         self.animate(dt)

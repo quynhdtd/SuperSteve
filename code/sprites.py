@@ -21,10 +21,28 @@ class AnimatedSprite(Sprite):
     def update(self, dt):
         self.animate(dt)
         
+class Item(AnimatedSprite):
+    def __init__(self, item_type, pos, frames, groups):
+        super().__init__(pos, frames, groups)
+        self.rect.center = pos
+        self.item_type = item_type
+
+class ParticleEffectSprite(AnimatedSprite):
+    def __init__(self, pos, frames, groups):
+        super().__init__(pos, frames, groups)
+        self.rect.center = pos
+        self.z = Z_LAYERS['fg']
+        
+    def animate(self, dt):
+        self.frame_index += self.animation_speed * dt
+        if self.frame_index < len(self.frames):
+            self.image = self.frames[int(self.frame_index)]
+        else:
+            self.kill()
+
 class MovingSprite(Sprite):
-    def __init__(self, groups, start_pos, end_pos, move_dir, speed):
-        surf = pygame.Surface((200,30))
-        super().__init__(start_pos, surf, groups)
+    def __init__(self, frames, groups, start_pos, end_pos, move_dir, speed, trap):
+        super().__init__(start_pos, frames, groups)
         if move_dir == 'x':
             self.rect.midleft = start_pos
         else:
@@ -35,7 +53,9 @@ class MovingSprite(Sprite):
         
         # movement
         self.moving = True
+        self.trap = trap
         self.speed = speed
+        self.gravity = 800
         self.direction = vector(1,0) if move_dir == 'x' else vector(0,1)
         self.move_dir = move_dir
     
@@ -57,9 +77,16 @@ class MovingSprite(Sprite):
             if self.rect.top <= self.start_pos[1] and self.direction.y == -1:
                 self.direction.y = 1
                 self.rect.top = self.start_pos[1]
-        
+    
     def update(self, dt):
         self.old_rect = self.rect.copy()
-        self.rect.topleft += self.direction * self.speed * dt
+        speed = self.speed
+        if self.trap == True and self.direction.y == 1:
+            speed += self.gravity/2
+        else:
+            speed = self.speed
+            
+        self.rect.topleft += self.direction * speed * dt
         self.check_border()
         
+        # self.animate(dt)
